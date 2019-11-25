@@ -1,16 +1,23 @@
-var readline = require('readline');
+const fs = require('fs');
+const readline = require('readline');
+
 // for real you will do require('webstomp-client')
-var webstomp = require('../dist/webstomp');
+const webstomp = require('../dist/webstomp');
+
 // you can use any WebSocket client library you want
 // just carefully read for each one specificities
-var WebSocket = require('ws');
+const WebSocket = require('ws');
 
-
-
-var rl = readline.createInterface(process.stdin, process.stdout),
-    url = 'ws://localhost:15674/ws',
-    login = 'guest', password = 'guest',
-    options = {debug: false, protocols: webstomp.VERSIONS.supportedProtocols()};
+const rl = readline.createInterface(process.stdin, process.stdout),
+      url = 'ws://localhost:5674/ws',
+      login = 'guest',
+      password = 'guest',
+      options = {
+        debug: true,
+        protocols: webstomp.VERSIONS.supportedProtocols(),
+        cert: fs.readFileSync('../certs/client_certificate.pem'),
+        key: fs.readFileSync('../certs/client_key.pem')
+      };
 
 var users = [
     {
@@ -22,6 +29,7 @@ var users = [
         client: webstomp.over(new WebSocket(url), options)
     }
 ];
+
 var master = {
     name: 'palpatine',
     client: webstomp.over(new WebSocket(url), options)
@@ -30,13 +38,16 @@ var master = {
 function onMessage(user, msg) {
     console.log('MESSAGE', user.name, msg.body);
 }
+
 function onError(user, err) {
     console.log('DISCONNECTED', user.name, err);
 }
+
 function onConnect(user) {
     console.log('CONNECTED', user.name);
     user.client.subscribe('/topic/webstomp-chat-example', onMessage.bind(this, user));
 }
+
 function onMasterConnect(master) {
     rl.setPrompt('something to broadcast? > ');
     rl.prompt();
