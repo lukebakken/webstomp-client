@@ -68,7 +68,9 @@ function onMasterConnect(master) {
 }
 
 users.forEach(function(user) {
-    user.client.connect(login, password, onConnect.bind(this, user), onError.bind(this, user));
+    // user.client.connect(login, password, onConnect.bind(this, user), onError.bind(this, user));
+    user.client.connect({}, onConnect.bind(this, user), onError.bind(this, user));
 });
 
-master.client.connect(login, password, onMasterConnect.bind(this, master), onError.bind(this, master));
+// master.client.connect(login, password, onMasterConnect.bind(this, master), onError.bind(this, master));
+master.client.connect({}, onMasterConnect.bind(this, master), onError.bind(this, master));
