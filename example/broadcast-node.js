@@ -9,30 +9,34 @@ const webstomp = require('../dist/webstomp');
 const WebSocket = require('ws');
 
 const rl = readline.createInterface(process.stdin, process.stdout),
-      url = 'ws://localhost:5674/ws',
+      url = 'wss://localhost:5674/ws',
       login = 'guest',
       password = 'guest',
       options = {
-        debug: true,
+        debug: false,
         protocols: webstomp.VERSIONS.supportedProtocols(),
-        cert: fs.readFileSync('../certs/client_certificate.pem'),
-        key: fs.readFileSync('../certs/client_key.pem')
       };
+
+const ws_opts = {
+    ca: [ fs.readFileSync('../certs/ca_certificate.pem') ],
+    cert: fs.readFileSync('../certs/client_certificate.pem'),
+    key: fs.readFileSync('../certs/client_key.pem')
+};
 
 var users = [
     {
         name: 'user 1',
-        client: webstomp.over(new WebSocket(url), options)
+        client: webstomp.over(new WebSocket(url, ws_opts), options)
     },
     {
         name: 'user 2',
-        client: webstomp.over(new WebSocket(url), options)
+        client: webstomp.over(new WebSocket(url, ws_opts), options)
     }
 ];
 
 var master = {
     name: 'palpatine',
-    client: webstomp.over(new WebSocket(url), options)
+    client: webstomp.over(new WebSocket(url, ws_opts), options)
 };
 
 function onMessage(user, msg) {
